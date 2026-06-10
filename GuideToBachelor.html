@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <title>Miles's Guide to Mt. Bachelor</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <!--    Include the reference to the Mapbox JavaScript here in the <head> of the page  (Part I.1)  -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.20.0/mapbox-gl.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+          
+    <!--    Include the reference to the Mapbox CSS here in between <head> tags    (Part I.2) -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.20.0/mapbox-gl.css" rel="stylesheet">
+    
+
+    <style>
+        /* Insert the additional CSS code here between the <style> tags  (Part I.4)   */
+         body { margin:0; padding:0; }
+         #map { position:absolute; top:0; bottom:0; width:100%; }
+         #banner { z-index: 9999; 
+         background-color:gray; 
+         opacity: 80%;
+         padding: 6px; 
+         text-align: center}
+
+         /* .easy{color:green; 
+            content: '&#x25CF;'
+          } */
+          .easy:after{
+            color:green; 
+            content: "\25CF";
+          }
+          /*
+          Skinny diamond: \2666
+           text-transform:capitalize;
+          */
+         .intermediate:after{color: blue; content:"\25A0";}
+         .advanced:after{color:black; content:"\25C6";}
+         .expert:after{color:black; content:"\25C6\25C6";}
+
+         .mapboxgl-popup-content > h3 {text-transform:capitalize;}
+
+         .iconSize{
+          font-size: 2em;
+         }
+
+   /* style for heading level 4 tags */
+   h4 {
+     color: white;
+     margin-left: 10px;
+   }
+
+   /*  style for items with the class "LegendContainer" */
+   .LegendContainer {
+     position: absolute;
+     bottom: 20px;
+     left: 20px;
+     z-index: 2;
+     width: 25vw;
+     height: 40px;
+     background: rgba(80, 80, 80, .75);
+     transition: width 2s, height 2s; /* this is the time it takes for the container to transition */
+     border-radius: 7px;
+   }
+
+   /*  style for items with the class "descriptionPanel" */
+   .descriptionPanel {
+     position: absolute;
+     bottom: 65px;
+     left: 20px;
+     z-index: 2;
+     width: 25vw;
+     height: 40px;
+     background: rgba(80, 80, 80, 0.75);
+     transition: width 2s, height 2s;
+     border-radius: 7px;
+     overflow: auto;
+   }
+
+   /*  style for items with the class "descriptionPanel" when active */
+   /* .LegendContainer:active {
+     width: 240px;
+     height: 250px;
+   } */
+
+   /* style for items with the class "legendItem" */
+   .legendItem {
+       /* margin: 0px; */
+       padding-left: 1px;
+       
+       display:inline-block;
+       /* margin:auto; */
+       transform: translate(50%, 50%);
+   }
+        
+
+   /* style for items with the class "layerDescription" */
+   .layerDescription {
+     color: white;
+     padding-left: 3px;
+   }
+
+   /* style for items with the class "chevron" */
+   .chevron {
+     position: relative;
+     margin-left: 45%;
+     font-size: x-large;
+     color: white;
+   }
+        
+
+
+
+
+    </style>
+
+        <!-- JavaScript Libraries-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/js/foundation.js"></script>
+
+  
+    <!-- CSS Links -->
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.4.3/css/foundation.min.css" rel="stylesheet" />
+    <link href="FinalStyle.css" rel="stylesheet" /> -->
+    
+
+
+  </head>
+
+  <body>
+    <!--  Insert the map div here in the <body> of the page  (Part I)  -->
+          <!--  Insert the map div here in the <body> of the page  (Part I)  -->
+      <div id='map'></div>
+      
+        <!--  Insert the title div here (part VI) -->
+      <div id='banner' style="color:white">
+        <h1><i>Miles's Guide to Mt. Bachelor</i></h1>
+        
+      </div>
+
+    <div class="descriptionPanel" id="descriptionPanel" style="height: 300px;">
+     <span onClick=panelSelect() id="glyph" class="chevron glyphicon glyphicon-chevron-down"></span>
+     <hr/>
+     <h4><u>WELCOME TO THE MOUNTAIN!</u></h4>
+     <p style="margin-left: 10px; margin-right: 10px; color:whitesmoke">
+       Here is my humble guide to my home mountain, Mt. Bachelor. Left click to move around, right click to change your viewing angle, and scroll to zoom.
+     </p>
+     <p style="margin-left: 10px; margin-right: 10px;color:whitesmoke">
+      Click on a bowl, run, or lift to hear what I think about it. These ratings are based off of my opinion as an advanced-but-not-quite-expert skier, and may not be accurate in all conditions.
+     </p>
+     <p style="margin-left: 10px; margin-right: 10px;color:whitesmoke">
+      All terrain parks are highlighted in <strong style="color:whitesmoke; text-shadow: 0 0 5px #ffbb3d">orange</strong>.
+     </p>
+   </div>
+   <!-- map legend -->
+      <div class="LegendContainer">
+     <div class="legendItem">
+         <span class="easy"></span>
+         <span class="layerDescription">Easy</span>
+     </div>
+     <div class="legendItem">
+         <span class="intermediate"></span>
+         <span class="layerDescription" style="padding-right: 25px;">Intermediate</span>
+     </div>
+     <div class="legendItem">
+         <span class="advanced"></span>
+         <span class="layerDescription">Advanced</span>
+     </div>
+   </div>
+
+    <script>
+        // Insert the JavaScript within the <script> tags, within the body   
+        // Start with the Mapbox access token here (Part 2.1)
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWFnaWNtbHoiLCJhIjoiY21uaHoxMmRtMDhrYzJvcHA4bjltZDA5biJ9.zufq2zkAjUxIm0wwN4PrkA';
+ 
+   
+        // Then initialize the map here (Part 2.2)
+        var bounds = [
+          [-122.07934674081297, 43.724741328583406], // Southwest coordinates
+          [-121.27086762672273, 44.24754760915758] // Northeast coordinates 
+        ];
+
+        var map = new mapboxgl.Map({
+            container: 'map', // id of a div on your page, where the map will be inserted
+            style: 'mapbox://styles/magicmlz/cmow07616004f01sy9faaanqc', // stylesheet location
+            center: [-121.68236, 43.98628], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+            zoom: 14, // starting zoom
+            bearing: -163.2,
+            pitch: 61,
+            minZoom: 11.5,
+            maxBounds: bounds, //
+            attributionControl: false
+
+        });
+
+        map.on('load', () => {
+
+            // Add the zoom contols here (part V)
+            map.addControl(new mapboxgl.AttributionControl({
+            customAttribution: 'Data sourced from OpenSkiMap, Descriptions and map made by Miles F.'
+            }));
+            map.addControl(new mapboxgl.NavigationControl({showCompass: true}), 'bottom-right');
+
+            // Add popups for markers here. Yes, before the markers!  (part IV)
+            
+            
+            // Add any other variables such as markers here (part III)
+            // var SkiRuns = map.getLayer("SkiRunColor");
+            // //console.log(SkiRuns);
+
+                map.on('click', "SkiRunColor", function (e) {
+                  console.log(e.features)
+                       // var coordinates = e.features[0].geometry.coordinates.slice();
+                        var description = e.features[0].properties.description;
+                        var difficulty = e.features[0].properties.difficulty;
+                        var name = e.features[0].properties.name;
+
+                  // console.log(e.lngLat);
+
+                      
+                     var popupContent = "<h1>" + name + "</h1>"
+                     popupContent += "<h3>" + "Rating: " + "<span class='" + difficulty + " iconSize'>  </span>" + " " + difficulty + "</h3>"
+                     popupContent += "<p>" + description + "</p>"
+                      // console.log(e.description);
+
+                        new mapboxgl.Popup()
+                        .setLngLat(e.lngLat)
+                        .setHTML(popupContent) // the string in the description var is added to the popup here
+                        .addTo(map);
+                });
+
+                map.on('click', "LiftColor", function (r) {
+                  console.log(r.features)
+                       // var coordinates = e.features[0].geometry.coordinates.slice();
+                        var liftDescription = r.features[0].properties.description;
+                        var liftName = r.features[0].properties.name;
+
+                  // console.log(e.lngLat);
+
+                      
+                    var popupContentLift = "<h1>" + liftName + "</h1>"
+                    popupContentLift += "<p>" + liftDescription + "</p>"
+                    
+                    
+                    
+                      // console.log(e.description);
+
+                        new mapboxgl.Popup()
+                        .setLngLat(r.lngLat)
+                        .setHTML(popupContentLift) // the string in the description var is added to the popup here
+                        .addTo(map);
+                });
+
+                map.on('click', "BowlsFill", function (t) {
+                  console.log(t.features)
+                       // var coordinates = e.features[0].geometry.coordinates.slice();
+                        var bowlDescription = t.features[0].properties.description;
+                        var bowlDifficulty = t.features[0].properties.difficulty;
+                        var bowlName = t.features[0].properties.name;
+
+              
+
+                      
+                     var popupContentBowl = "<h1>" + bowlName + "</h1>"
+                     popupContentBowl += "<h3>" + "Rating: " + "<span class='" + bowlDifficulty + " iconSize'>  </span>" + " " + bowlDifficulty + "</h3>"
+                     popupContentBowl += "<p>" + bowlDescription + "</p>"
+                  
+
+                        new mapboxgl.Popup()
+                        .setLngLat(t.lngLat)
+                        .setHTML(popupContentBowl) // the string in the description var is added to the popup here
+                        .addTo(map);
+                });
+
+            map.on('mouseenter',  "SkiRunColor", function () {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave',  "SkiRunColor", function () {
+                  map.getCanvas().style.cursor = '';
+            });
+
+            map.on('mouseenter',  "LiftColor", function () {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave',  "LiftColor", function () {
+                  map.getCanvas().style.cursor = '';
+            });
+
+            map.on('mouseenter',  "BowlsFill", function () {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave',  "BowlsFill", function () {
+                  map.getCanvas().style.cursor = '';
+            });
+
+            // Add optional advanced "On load" function here
+        });
+
+    var state = { panelOpen: true };
+
+      function panelSelect(e){
+        if(state.panelOpen){
+          document.getElementById('descriptionPanel').style.height = '26px';
+          document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-up";
+          state.panelOpen = false;
+        } else {
+          document.getElementById('descriptionPanel').style.height = '300px';
+          document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-down";
+          state.panelOpen = true;
+        }
+      }  
+        
+    </script>
+  
+
+  </body>
+
+</html>
